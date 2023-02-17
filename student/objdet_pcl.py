@@ -97,6 +97,24 @@ def getRangeImageChannels(rangeImage):
         INSIDE_NO_LABEL_ZONE: rangeImage[:, :, 3]
     }
 
+def scaleDataToUInt8(channel):
+    # DISCLAIMER:
+    # I don't normalize the data using the formula of the class.
+    # Instead, I just divide by the maximume value
+    # 
+    # Reason: Overflows!
+    # Let's scale foo = np.array([5, 10, 6, 7, 8]) -> delta = max - min = 10 - 5 = 5
+    #
+    # Now, scale data according to course material
+    # A. foo / delta: [1,   2,   1.2, 1.4, 1.6]
+    # B. * 255:       [255, 510, 306, 357, 408] (numbers > 255 will be decreased by 256)
+    # C. cast(uint8): [255, 254, 50,  101, 152]
+    #
+    # This behavior totally corrupts the data.
+    scaledChannel = channel * 255 / np.max(channel)
+    return scaledChannel.astype(np.uint8)
+
+
 # visualize lidar point-cloud
 def show_pcl(pcl):
 
@@ -136,7 +154,9 @@ def show_range_image(frame, lidar_name):
         rangeImage = loadRangeImage(lidar)
         channels = getRangeImageChannels(rangeImage)
     
-    # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
+        # step 4 : map the range channel onto an 8-bit scale and make sure that the full range of values is appropriately considered
+        rangeUInt8 = scaleDataToUInt8(channels[RANGE])
+
     
     img_range_intensity = [] # remove after implementing all steps
     #######
