@@ -30,6 +30,12 @@ from tools.waymo_reader.simple_waymo_open_dataset_reader import dataset_pb2, lab
 # object detection tools and helper functions
 import misc.objdet_tools as tools
 
+# Constants to access range image channel dictionary
+RANGE = 0
+INTENSITY = 1
+ELONGATION = 2
+INSIDE_NO_LABEL_ZONE = 3
+
 # Extract lidar from frame data
 def extractLidar(frame, lidar_name):
     # Return variables
@@ -78,6 +84,19 @@ def loadRangeImage(lidar):
 
     return rangeImage
 
+def getRangeImageChannels(rangeImage):
+    # According to dataset.proto the channel mapping is:
+    # 0: range
+    # 1: intensity
+    # 2: elongation
+    # 3: is in no label zone
+    return {
+        RANGE: rangeImage[:, :, 0],
+        INTENSITY: rangeImage[:, :, 1],
+        ELONGATION: rangeImage[:, :, 2],
+        INSIDE_NO_LABEL_ZONE: rangeImage[:, :, 3]
+    }
+
 # visualize lidar point-cloud
 def show_pcl(pcl):
 
@@ -115,6 +134,7 @@ def show_range_image(frame, lidar_name):
         # step 2 : extract the range and the intensity channel from the range image
         # step 3 : set values <0 to zero (is done in loadRangeImage)
         rangeImage = loadRangeImage(lidar)
+        channels = getRangeImageChannels(rangeImage)
     
     # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
     
