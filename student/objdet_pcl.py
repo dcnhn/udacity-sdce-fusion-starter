@@ -85,7 +85,8 @@ def loadRangeImage(lidar):
         # Crop the image from -90 to 90 degrees => 180 degrees
         idxAxisX = rangeImage.shape[1] // 2
         offset = int(rangeImage.shape[1] // 4)
-        rangeImage = rangeImage[:, (idxAxisX - offset - 1) : (idxAxisX + offset), :]
+        offsetLft = 1 if (rangeImage.shape[1] % 2 == 0) else 0
+        rangeImage = rangeImage[:, (idxAxisX - offset - offsetLft) : (idxAxisX + offset), :]
 
     return rangeImage
 
