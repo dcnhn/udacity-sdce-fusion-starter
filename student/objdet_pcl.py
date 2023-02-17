@@ -54,6 +54,30 @@ def extractLidar(frame, lidar_name):
 
     return found, lidar
 
+def loadRangeImage(lidar):
+    # Return variable
+    rangeImage = []
+
+    # Save the range image bytestream to a local variable
+    # As mentioned in the course, we process the first response
+    rangeImageStream = lidar.ri_return1.range_image_compressed
+
+    # Check if the stream contains data by checking its length
+    if (len(rangeImageStream) > 0):
+        
+        # Bytestream contains data. Convert return variable
+        # to a float matrix of the dataset_pb2 package
+        rangeImage = dataset_pb2.MatrixFloat()
+
+        # Now we have to parse the stream to be able to process the data
+        rangeImage.ParseFromString(zlib.decompress(rangeImageStream))
+        
+        # Convert data to a numpy array and zero out all negative entries
+        rangeImage = np.array(rangeImage.data).reshape(rangeImage.shape.dims)
+        rangeImage[rangeImage < 0] = 0.0
+
+    return rangeImage
+
 # visualize lidar point-cloud
 def show_pcl(pcl):
 
@@ -85,6 +109,12 @@ def show_range_image(frame, lidar_name):
     # step 1 : extract lidar data and range image for the roof-mounted lidar
     found, lidar = extractLidar(frame, lidar_name)
 
+    # Check if the given lidar was found in the frame
+    if found:
+
+        # step 2 : extract the range and the intensity channel from the range image
+        # step 3 : set values <0 to zero (is done in loadRangeImage)
+        rangeImage = loadRangeImage(lidar)
     
     # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
     
