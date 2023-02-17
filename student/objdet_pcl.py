@@ -97,6 +97,74 @@ def getRangeImageChannels(rangeImage):
         INSIDE_NO_LABEL_ZONE: rangeImage[:, :, 3]
     }
 
+def handleOutliers(channel, lowerOutlierPercentile = 0, upperOutlierPercentile = 100, scalingTerm = 0.3):
+    # This method will scale outliers to the percentile value while maintaining the relative positions to each other.
+    #
+    # scalingTerm = 0.3 means:
+    # The maximum will be 1.3 * upperPercentile, other upper outliers will be scaled between [upperPercentile, 1.3 * upperPercentile]
+    # The minimum will be 0.7 * percentileLower, other lower outliers will be scaled between [0.7 * lowerOutlierPercentile, lowerOutlierPercentile]
+
+    # Save channel in local copy as arrays are mutable. Don't wannt to call by reference
+    channelCpy = channel.copy()
+
+    # Handle invalid input
+    lower = np.max([0, lowerOutlierPercentile])
+    upper = np.min([100, upperOutlierPercentile])
+    scaleTerm = np.max([0.05, scalingTerm])
+
+    # Check if outlier handling is desired.
+    if (0 < (upper - lower) < 100):
+        # Save percentiles in local variable
+        percentileLower = np.percentile(channelCpy, lower)
+        percentileUpper = np.percentile(channelCpy, upper)
+
+        # Get indices of outliers. We get a tuple of arrays of same length. 
+        # First array represents: the row index
+        # Second array represents: the col index
+        idxUpper = np.where(channelCpy > percentileUpper)
+        idxLower = np.where(channelCpy < percentileLower)
+
+        # Compute baseline for scaling
+        baseUpper = np.max(channelCpy) - percentileUpper
+        baseLower = percentileLower - np.min(channelCpy)
+
+        # Iterate over upper outliers
+        for rowIdx in range(len(idxUpper[0])):
+            
+            # For readablity save indices in local variable
+            iRow = idxUpper[0][rowIdx]
+            iCol = idxUpper[1][rowIdx]
+
+            # Flag indicating negative percentile
+            isNegative = (percentileUpper < 0.0)
+
+            # Compute factor to scale
+            factor = (channelCpy[iRow, iCol] - percentileUpper) / baseUpper
+            factor *= scaleTerm
+
+            # Finally, scale outlier.
+            channelCpy[iRow, iCol] = (percentileUpper * (1.0 - factor)) if isNegative else ((percentileUpper * (1.0 + factor)))
+
+        # Iterate over lower outliers
+        for rowIdx in range(len(idxLower[0])):
+            
+            # For readablity save indices in local variable
+            iRow = idxLower[0][rowIdx]
+            iCol = idxLower[1][rowIdx]
+
+            # Flag indicating negative percentile
+            isNegative = (percentileLower < 0.0)
+
+            # Compute factor to scale
+            factor = (percentileLower - channelCpy[iRow, iCol]) / baseLower
+            factor *= scaleTerm
+
+            # Finally, scale outlier.
+            channelCpy[iRow, iCol] = (percentileLower * (1.0 + factor)) if isNegative else ((percentileLower * (1.0 - factor)))
+
+    return channelCpy
+        
+
 def scaleDataToUInt8(channel):
     # DISCLAIMER:
     # I don't normalize the data using the formula of the class.
@@ -156,6 +224,10 @@ def show_range_image(frame, lidar_name):
     
         # step 4 : map the range channel onto an 8-bit scale and make sure that the full range of values is appropriately considered
         rangeUInt8 = scaleDataToUInt8(channels[RANGE])
+
+        # step 5 : map the intensity channel onto an 8-bit scale and normalize with the difference between the 1- and 99-percentile to mitigate the influence of outliers
+        intensityUInt8 = handleOutliers(channels[INTENSITY], 1, 99, 0.5)
+        intensityUInt8 = scaleDataToUInt8(intensityUInt8)
 
     
     img_range_intensity = [] # remove after implementing all steps
