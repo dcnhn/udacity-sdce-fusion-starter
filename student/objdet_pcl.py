@@ -12,6 +12,7 @@
 
 # general package imports
 import cv2
+import open3d as o3d
 import numpy as np
 import torch
 import zlib
@@ -35,6 +36,56 @@ RANGE = 0
 INTENSITY = 1
 ELONGATION = 2
 INSIDE_NO_LABEL_ZONE = 3
+
+# Counter for frames
+FRAME_COUNTER = 0
+
+# Right key code
+RIGHT_KEY = 262
+
+def handleRightArrowKey(vis):
+    vis.close()
+
+# visualize lidar point-cloud
+def show_pcl(pcl):
+    global FRAME_COUNTER
+    ####### ID_S1_EX2 START #######     
+    #######
+    print("student task ID_S1_EX2")
+
+    # step 1 : initialize open3d with key callback and create window
+    o3dViz = o3d.visualization.VisualizerWithKeyCallback()
+    o3dViz.create_window(window_name="Frame: {}".format(FRAME_COUNTER),
+                         width=1920,
+                         height=1080,
+                         left=50,
+                         top=50,
+                         visible=True)
+
+    # step 2 : create instance of open3d point-cloud class
+    pointCloud = o3d.geometry.PointCloud()
+
+    # step 3 : set points in pcd instance by converting the point-cloud into 3d vectors (using open3d function Vector3dVector)
+    pointCloud.points = o3d.utility.Vector3dVector(pcl[:, 0:3])
+
+    # step 4 : for the first frame, add the pcd instance to visualization using add_geometry; for all other frames, use update_geometry instead
+    o3dViz.add_geometry(pointCloud)
+    # update_geometry does not work
+    # if (FRAME_COUNTER == 0):
+    #     o3dViz.add_geometry(pointCloud)
+    # else:
+    #     o3dViz.update_geometry(pointCloud)
+
+    # step 5 : visualize point cloud and keep window open until right-arrow is pressed (key-code 262)
+    o3dViz.register_key_callback(RIGHT_KEY, handleRightArrowKey)
+    o3dViz.run()
+
+    FRAME_COUNTER += 1
+    #######
+    ####### ID_S1_EX2 END #######     
+       
+
+
 
 # Extract lidar from frame data
 def extractLidar(frame, lidar_name):
@@ -187,28 +238,6 @@ def scaleDataToUInt8(channel):
     # This behavior totally corrupts the data.
     scaledChannel = channel * 255 / np.max(channel)
     return scaledChannel.astype(np.uint8)
-
-
-# visualize lidar point-cloud
-def show_pcl(pcl):
-
-    ####### ID_S1_EX2 START #######     
-    #######
-    print("student task ID_S1_EX2")
-
-    # step 1 : initialize open3d with key callback and create window
-    
-    # step 2 : create instance of open3d point-cloud class
-
-    # step 3 : set points in pcd instance by converting the point-cloud into 3d vectors (using open3d function Vector3dVector)
-
-    # step 4 : for the first frame, add the pcd instance to visualization using add_geometry; for all other frames, use update_geometry instead
-    
-    # step 5 : visualize point cloud and keep window open until right-arrow is pressed (key-code 262)
-
-    #######
-    ####### ID_S1_EX2 END #######     
-       
 
 # visualize range image
 def show_range_image(frame, lidar_name):
