@@ -82,6 +82,11 @@ def loadRangeImage(lidar):
         rangeImage = np.array(rangeImage.data).reshape(rangeImage.shape.dims)
         rangeImage[rangeImage < 0] = 0.0
 
+        # Crop the image from -90 to 90 degrees => 180 degrees
+        idxAxisX = rangeImage.shape[1] // 2
+        offset = int(rangeImage.shape[1] // 4)
+        rangeImage = rangeImage[:, (idxAxisX - offset - 1) : (idxAxisX + offset), :]
+
     return rangeImage
 
 def getRangeImageChannels(rangeImage):
@@ -218,7 +223,7 @@ def show_range_image(frame, lidar_name):
     if found:
 
         # step 2 : extract the range and the intensity channel from the range image
-        # step 3 : set values <0 to zero (is done in loadRangeImage)
+        # step 3 : set values < 0 to zero (is done in loadRangeImage)
         rangeImage = loadRangeImage(lidar)
         channels = getRangeImageChannels(rangeImage)
     
