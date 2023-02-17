@@ -14,6 +14,7 @@
 import cv2
 import numpy as np
 import torch
+import zlib
 
 # add project directory to python path to enable relative imports
 import os
@@ -29,6 +30,29 @@ from tools.waymo_reader.simple_waymo_open_dataset_reader import dataset_pb2, lab
 # object detection tools and helper functions
 import misc.objdet_tools as tools
 
+# Extract lidar from frame data
+def extractLidar(frame, lidar_name):
+    # Return variables
+    found = False
+    lidar = None
+
+    # Sanity check for lidar_name
+    if (dataset_pb2.LaserName.UNKNOWN < lidar_name <= dataset_pb2.LaserName.REAR):
+
+        # Store lidars in a local variable
+        lidars = frame.lasers
+
+        # Iterate over serialized lidar data
+        for l in lidars:
+
+            # Compare name of current element with lidar_name
+            if l.name == lidar_name:
+
+                # Set return variables
+                found = True
+                lidar = l
+
+    return found, lidar
 
 # visualize lidar point-cloud
 def show_pcl(pcl):
@@ -57,16 +81,10 @@ def show_range_image(frame, lidar_name):
     ####### ID_S1_EX1 START #######     
     #######
     print("student task ID_S1_EX1")
-
+    
     # step 1 : extract lidar data and range image for the roof-mounted lidar
-    
-    # step 2 : extract the range and the intensity channel from the range image
-    
-    # step 3 : set values <0 to zero
-    
-    # step 4 : map the range channel onto an 8-bit scale and make sure that the full range of values is appropriately considered
-    
-    # step 5 : map the intensity channel onto an 8-bit scale and normalize with the difference between the 1- and 99-percentile to mitigate the influence of outliers
+    found, lidar = extractLidar(frame, lidar_name)
+
     
     # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
     
