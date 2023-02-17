@@ -73,12 +73,12 @@ SHOW_PLOT = False
 
 # Test case 1 all values are negative
 a = 10 * np.random.random((20,20))
-a = a - 1.1 * np.max(a)
+a = a - 10 * np.max(a)
 
 iMin = np.where(a == np.min(a))
 iMax = np.where(a == np.max(a))
 a[iMin[0][0], iMin[1][0]] = -500
-a[iMax[0][0], iMax[1][0]] = 500
+a[iMax[0][0], iMax[1][0]] = -0.01
 b = handleOutliers(a, 1, 99, 0.2)
 iMinB = np.where(b == np.min(b))
 iMaxB = np.where(b == np.max(b))
@@ -111,11 +111,11 @@ print("Max Index Equal: ",iMax[0][0] == iMaxB[0][0], iMax[1][0] == iMaxB[1][0])
 
 # Test case 3 all values are positive
 a = 10 * np.random.random((20,20))
-a = a + 1.1 * np.max(a)
+a = a + 10 * np.max(a)
 
 iMin = np.where(a == np.min(a))
 iMax = np.where(a == np.max(a))
-a[iMin[0][0], iMin[1][0]] = -500
+a[iMin[0][0], iMin[1][0]] = 0.1
 a[iMax[0][0], iMax[1][0]] = 500
 b = handleOutliers(a, 1, 99, 0.2)
 iMinB = np.where(b == np.min(b))
