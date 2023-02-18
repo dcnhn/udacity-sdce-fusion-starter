@@ -6,13 +6,13 @@ bird view (BEV). The lidar image can then be represented by three channels: the 
 ## Range Image
 The first task was to extract the range image from the Waymo recording. From the range image, we were required to convert the channels "range" and "intensity" from floating-point data to an 8-bit integer value range. Additionally, we also had to handle outliers within the data. Otherwise, the outliers would lead to a distorted image making the analysis unfeasible. The image below depicts both the range (top) and intensity (bottom) image. The view is cropped to the yaw angle range of [-90, +90] degrees.
 
-![local image][doc/mid07.png]
+![local image](doc/mid07.png)
 
 ## Point cloud
 In this task, we had to display the lidar point cloud using the Open3D library. In addition, we were supposed to inspect the vehicles.
 
 
-![local image][doc/mid01.png]![local image][doc/mid02.png]![local image][doc/mid03.png]![local image][doc/mid04.png]![local image][doc/mid05.png]![local image][doc/mid06.png]
+![local image](doc/mid01.png)![local image](doc/mid02.png)![local image](doc/mid03.png)![local image](doc/mid04.png)![local image](doc/mid05.png)![local image](doc/mid06.png)
 
 
 
