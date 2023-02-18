@@ -195,7 +195,7 @@ def detect_objects(input_bev_maps, model, configs):
             print("student task ID_S3_EX1-5")
 
             # perform post-processing
-            detections = decode(_sigmoid(outputs['hm_cen']),
+            output_post = decode(_sigmoid(outputs['hm_cen']),
                                 _sigmoid(outputs['cen_offset']),
                                 outputs['direction'],
                                 outputs['z_coor'],
@@ -203,8 +203,15 @@ def detect_objects(input_bev_maps, model, configs):
 
             # post_processing
             # Don't forget to convert a tensor to numpy arrays!
-            detections = detections.cpu().numpy().astype(np.float32)
-            detections = post_processing(detections, configs)
+            output_post = output_post.cpu().numpy().astype(np.float32)
+            output_post = post_processing(output_post, configs)
+
+            detections = []
+            for ele in output_post:
+                for key in ele:
+                    if ele[key].size:
+                        for detection in ele[key]:
+                            detections.append(detection)
 
             #######
             ####### ID_S3_EX1-5 END #######     
@@ -225,29 +232,23 @@ def detect_objects(input_bev_maps, model, configs):
 
         ## step 2 : loop over all detections
         for detection in detections:
+            # Map state to variables
+            # Note that the data is described in the image plane!
+            [_, bevX, bevY, z, h, bevW, bevL, yaw] = detection
 
-            # detection is a dict. Therefore, iterate over the keys
-            for key in detection:
-                if detection[key].size:
-                    for state in detection[key]:
-                        
-                        # Map state to variables
-                        # Note that the data is described in the image plane!
-                        [score, bevX, bevY, z, h, bevW, bevL, yaw] = state
+            # Transform measures into vehicle coordinates
+            x = bevY / configs.bev_height * boundaryX
+            y = bevX / configs.bev_width * boundaryY - boundaryY/2.0 
+            w = bevW / configs.bev_width * boundaryY 
+            l = bevL / configs.bev_height * boundaryX
 
-                        # Transform measures into vehicle coordinates
-                        x = bevY / configs.bev_height * boundaryX
-                        y = bevX / configs.bev_width * boundaryY - boundaryY/2.0 
-                        w = bevW / configs.bev_width * boundaryY 
-                        l = bevL / configs.bev_height * boundaryX
-
-                        ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
-                        if ((x >= configs.lim_x[0]) and (x <= configs.lim_x[1])
-                            and (y >= configs.lim_y[0]) and (y <= configs.lim_y[1])
-                            and (z >= configs.lim_z[0]) and (z <= configs.lim_z[1])):
-                            
-                            ## step 4 : append the current object to the 'objects' array
-                            objects.append([1, x, y, z, h, w, l, yaw])
+            ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
+            if ((x >= configs.lim_x[0]) and (x <= configs.lim_x[1])
+                and (y >= configs.lim_y[0]) and (y <= configs.lim_y[1])
+                and (z >= configs.lim_z[0]) and (z <= configs.lim_z[1])):
+                
+                ## step 4 : append the current object to the 'objects' array
+                objects.append([1, x, y, z, h, w, l, yaw])
         
     #######
     ####### ID_S3_EX2 START #######   
