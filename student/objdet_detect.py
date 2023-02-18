@@ -24,7 +24,8 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 # model-related
 from tools.objdet_models.resnet.models import fpn_resnet
-from tools.objdet_models.resnet.utils.evaluation_utils import decode, post_processing 
+from tools.objdet_models.resnet.utils.evaluation_utils import decode, post_processing
+from tools.objdet_models.resnet.utils.torch_utils import _sigmoid
 
 from tools.objdet_models.darknet.models.darknet2pytorch import Darknet as darknet
 from tools.objdet_models.darknet.utils.evaluation_utils import post_processing_v2
@@ -184,7 +185,7 @@ def detect_objects(input_bev_maps, model, configs):
                 for obj in detection:
                     x, y, w, l, im, re, _, _, _ = obj
                     yaw = np.arctan2(im, re)
-                    detections.append([1, x, y, 0.0, 1.50, w, l, yaw])    
+                    detections.append([1, x, y, 0.0, 1.50, w, l, yaw])
 
         elif 'fpn_resnet' in configs.arch:
             # decode output and perform post-processing
@@ -192,6 +193,18 @@ def detect_objects(input_bev_maps, model, configs):
             ####### ID_S3_EX1-5 START #######     
             #######
             print("student task ID_S3_EX1-5")
+
+            # perform post-processing
+            detections = decode(_sigmoid(outputs['hm_cen']),
+                                _sigmoid(outputs['cen_offset']),
+                                outputs['direction'],
+                                outputs['z_coor'],
+                                outputs['dim'])
+
+            # post_processing
+            # Don't forget to convert a tensor to numpy arrays!
+            detections = detections.cpu().numpy().astype(np.float32)
+            detections = post_processing(detections, configs)
 
             #######
             ####### ID_S3_EX1-5 END #######     
