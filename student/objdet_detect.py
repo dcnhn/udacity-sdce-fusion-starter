@@ -215,18 +215,42 @@ def detect_objects(input_bev_maps, model, configs):
     #######
     # Extract 3d bounding boxes from model response
     print("student task ID_S3_EX2")
-    objects = [] 
+
+    objects = []
 
     ## step 1 : check whether there are any detections
+    if len(detections):
+        boundaryX = configs.lim_x[1] - configs.lim_x[0]
+        boundaryY = configs.lim_y[1] - configs.lim_y[0]
 
         ## step 2 : loop over all detections
-        
-            ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
-        
-            ## step 4 : append the current object to the 'objects' array
+        for detection in detections:
+
+            # detection is a dict. Therefore, iterate over the keys
+            for key in detection:
+                if detection[key].size:
+                    for state in detection[key]:
+                        
+                        # Map state to variables
+                        # Note that the data is described in the image plane!
+                        [score, bevX, bevY, z, h, bevW, bevL, yaw] = state
+
+                        # Transform measures into vehicle coordinates
+                        x = bevY / configs.bev_height * boundaryX
+                        y = bevX / configs.bev_width * boundaryY - boundaryY/2.0 
+                        w = bevW / configs.bev_width * boundaryY 
+                        l = bevL / configs.bev_height * boundaryX
+
+                        ## step 3 : perform the conversion using the limits for x, y and z set in the configs structure
+                        if ((x >= configs.lim_x[0]) and (x <= configs.lim_x[1])
+                            and (y >= configs.lim_y[0]) and (y <= configs.lim_y[1])
+                            and (z >= configs.lim_z[0]) and (z <= configs.lim_z[1])):
+                            
+                            ## step 4 : append the current object to the 'objects' array
+                            objects.append([1, x, y, z, h, w, l, yaw])
         
     #######
     ####### ID_S3_EX2 START #######   
     
-    return objects    
+    return objects
 
