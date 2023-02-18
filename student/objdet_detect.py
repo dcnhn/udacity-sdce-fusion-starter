@@ -47,6 +47,7 @@ def load_configs_model(model_name='darknet', configs=None):
         configs.model_path = os.path.join(parent_path, 'tools', 'objdet_models', 'darknet')
         configs.pretrained_filename = os.path.join(configs.model_path, 'pretrained', 'complex_yolov4_mse_loss.pth')
         configs.arch = 'darknet'
+        configs.min_iou = 0.5
         configs.batch_size = 4
         configs.cfgfile = os.path.join(configs.model_path, 'config', 'complex_yolov4.cfg')
         configs.conf_thresh = 0.5
@@ -66,6 +67,7 @@ def load_configs_model(model_name='darknet', configs=None):
         configs.imagenet_pretrained = True
         configs.pretrained_filename = os.path.join(configs.model_path, 'pretrained', 'fpn_resnet_18_epoch_300.pth')
         configs.arch = 'fpn_resnet'
+        configs.min_iou = 0.5
         configs.down_ratio = 4
         configs.conf_thresh = 0.5
         configs.nms_thresh = 0.4
@@ -185,7 +187,7 @@ def detect_objects(input_bev_maps, model, configs):
                 for obj in detection:
                     x, y, w, l, im, re, _, _, _ = obj
                     yaw = np.arctan2(im, re)
-                    detections.append([1, x, y, 0.0, 1.50, w, l, yaw])
+                    detections.append([1, x.numpy(), y.numpy(), 0.0, 1.50, w.numpy(), l.numpy(), yaw.numpy()])
 
         elif 'fpn_resnet' in configs.arch:
             # decode output and perform post-processing
