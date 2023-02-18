@@ -79,6 +79,7 @@ camera = None # init camera sensor object
 np.random.seed(10) # make random values predictable
 
 ## Selective execution and visualization
+exec_data = [] # options are 'pcl_from_rangeimage', 'load_image'
 exec_detection = ['bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'] # options are 'bev_from_pcl', 'detect_objects', 'validate_object_labels', 'measure_detection_performance'; options not in the list will be loaded from file
 exec_tracking = [] # options are 'perform_tracking'
 exec_visualization = [] # options are 'show_range_image', 'show_bev', 'show_pcl', 'show_labels_in_image', 'show_objects_and_labels_in_bev', 'show_objects_in_bev_labels_in_camera', 'show_tracks', 'show_detection_performance', 'make_tracking_movie'
@@ -89,7 +90,7 @@ vis_pause_time = 0 # set pause time between frames in ms (0 = stop between frame
 ##################
 ## Perform detection & tracking over all selected frames
 
-cnt_frame = 0 
+cnt_frame = 0
 all_labels = []
 det_performance_all = [] 
 np.random.seed(0) # make random values predictable
@@ -276,7 +277,7 @@ while True:
 
 ## Evaluate object detection performance
 if 'show_detection_performance' in exec_list:
-    eval.compute_performance_stats(det_performance_all, configs_det)
+    eval.compute_performance_stats(det_performance_all)
 
 ## Plot RMSE for all tracks
 if 'show_tracks' in exec_list:
