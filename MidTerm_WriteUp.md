@@ -8,11 +8,14 @@ The first task was to extract the range image from the Waymo recording. From the
 
 ![local image](doc/mid07.png)
 
-## Point cloud
-In this task, we had to display the lidar point cloud using the Open3D library. In addition, we were supposed to inspect the vehicles.
+## Point Cloud
+In this task, we had to display the lidar point cloud using the Open3D library. Below images depict cars with varying degrees of visibility. As mentioned in the classes, there is a blind spot around the system vehicle as the vehicle itself obstructs the lidar's field of view. Hence, vehicles close to the system will not be fully detected. We can also observe that detected cars will cast a 'shadow'. Objects within those 'shadows' won't be perceived by the lidar. In comparison to both the camera or radar, 
+the lidar is able to detect the exact shapes and features of the road users, e.g. bumper and lights.
 
+![local image](doc/mid01.png)![local image](doc/mid02.png)![local image](doc/mid03.png)![local image](doc/mid04.png)![local image](doc/mid05.png)![local image](doc/mid06.png)![local image](doc/mid08.png)![local image](doc/mid09.png)![local image](doc/mid10.png)![local image](doc/mid11.png)
 
-![local image](doc/mid01.png)![local image](doc/mid02.png)![local image](doc/mid03.png)![local image](doc/mid04.png)![local image](doc/mid05.png)![local image](doc/mid06.png)
+## Height and Intensity Map
+Another task was to create a height and intensity map. Here, it was important to properly normalize the data to mitigate the distortion introduced by outliers. I implemented a method that scaled the outliers down based on a given percentile.
+In the image, we can observe that all objects are displayed quite accurate.
 
-
-
+![local image](doc/mid12.png)
