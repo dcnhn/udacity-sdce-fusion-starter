@@ -113,8 +113,13 @@ class Filter:
         ############
         # TODO Step 1: calculate and return residual gamma
         ############
+        # Transform state vector x to the measurement space by calling the measurement function h(x)
+        # Note that the measurement class contains a sensor object as an attribute
+        hAtX = meas.sensor.get_hx(track.x)
 
-        return 0
+        # Return gamma which is the residual of the new measurement and the result of h(x)
+        # gamma = z - h(x)
+        return meas.z - hAtX
         
         ############
         # END student code
