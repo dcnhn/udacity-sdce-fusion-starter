@@ -129,9 +129,8 @@ class Filter:
         ############
         # TODO Step 1: calculate and return covariance of residual S
         ############
-
-        return 0
+        return H * track.P * H.transpose() + meas.R
         
         ############
         # END student code
-        ############ 
+        ############
