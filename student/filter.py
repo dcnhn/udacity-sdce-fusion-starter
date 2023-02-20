@@ -59,8 +59,24 @@ class Filter:
         # TODO Step 1: implement and return process noise covariance Q
         ############
 
-        return 0
-        
+        # We use the assumptions of the lesson:
+        # A) Noise through acceleration equal in all dimensions
+        # B) Discretization in time domain
+        dt = params.dt
+        dtSquared = dt * dt
+        dtCubic = dtSquared * dt
+        qLin = dt * params.q
+        qSquared = 0.5 * dtSquared * params.q
+        qCubic = 0.333333 * dtCubic * params.q
+
+        # Map values in the matrix according to lesson material
+        return np.matrix([[qCubic,   0,        0,        qSquared, 0,        0],
+                          [0,        qCubic,   0,        0,        qSquared, 0],
+                          [0,        0,        qCubic,   0,        0,        qSquared],
+                          [qSquared, 0,        0,        qLin,     0,        0],
+                          [0,        qSquared, 0,        0,        qLin,     0],
+                          [0,        0,        qSquared, 0,        0,        qLin]])
+
         ############
         # END student code
         ############ 
