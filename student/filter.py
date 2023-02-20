@@ -30,8 +30,25 @@ class Filter:
         ############
         # TODO Step 1: implement and return system matrix F
         ############
-
-        return 0
+        # According to Track class, the state vector x has 6 states:
+        # x = [x, y, z, vx, vy, vz]^T
+        #
+        # Therefore, F will have the dimension 6x6
+        #
+        # A constant velocity model is assumed leading to the following equations:
+        # x_k+1  = x_k + vx_k * dt
+        # y_k+1  = y_k + vy_k * dt
+        # z_k+1  = z_k + vz_k * dt
+        # vx_k+1 = vx_k
+        # vy_k+1 = vy_k
+        # vz_k+1 = vz_k
+        dt = params.dt
+        return np.matrix([[1, 0, 0, dt, 0, 0],
+                          [0, 1, 0, 0, dt, 0],
+                          [0, 0, 1, 0, 0, dt],
+                          [0, 0, 0, 1, 0, 0],
+                          [0, 0, 0, 0, 1, 0],
+                          [0, 0, 0, 0, 0, 1]])
         
         ############
         # END student code
