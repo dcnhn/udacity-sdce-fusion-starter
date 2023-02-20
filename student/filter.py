@@ -103,7 +103,27 @@ class Filter:
         ############
         # TODO Step 1: update state x and covariance P with associated measurement, save x and P in track
         ############
-        
+        # Compute residual
+        gamma = self.gamma(track, meas)
+
+        # Get Jacobian H for a given state vector x
+        H = meas.sensor.get_H(track.x)
+
+        # Compute covariance of residual
+        S = self.S(track, meas, H)
+
+        # Compute Kalman Gain
+        K = track.P * H.transpose() * np.linalg.inv(S)
+
+        # Compute new estimates
+        xEst = track.x + K * gamma
+        I = np.identity(params.dim_state)
+        PEst = (I - K * H) * track.P
+
+        # Call setters of track object to update the states
+        track.set_x(xEst)
+        track.set_P(PEst)
+
         ############
         # END student code
         ############ 
