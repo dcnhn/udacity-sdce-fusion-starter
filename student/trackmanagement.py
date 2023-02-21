@@ -35,21 +35,44 @@ class Track:
         # - initialize track state and track score with appropriate values
         ############
 
-        self.x = np.matrix([[49.53980697],
-                        [ 3.41006279],
-                        [ 0.91790581],
-                        [ 0.        ],
-                        [ 0.        ],
-                        [ 0.        ]])
-        self.P = np.matrix([[9.0e-02, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00],
-                        [0.0e+00, 9.0e-02, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00],
-                        [0.0e+00, 0.0e+00, 6.4e-03, 0.0e+00, 0.0e+00, 0.0e+00],
-                        [0.0e+00, 0.0e+00, 0.0e+00, 2.5e+03, 0.0e+00, 0.0e+00],
-                        [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+03, 0.0e+00],
-                        [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+01]])
-        self.state = 'confirmed'
-        self.score = 0
-        
+        # Transform measurement from sensor coordinates to vehicle coordinates
+        # The lidar measurement has dimensions = 3.
+        # The transformation matrix will have the dimensions 4x4 as it is described in homogeneous  coordinates.
+        # Therefore, we have to add another row to z, z_new = [z, 1]^T
+        # which represents the translation of the coordinate transformation.
+        zHomogeneous = np.ones((4, 1))
+        zHomogeneous[0:3] = meas.z
+        xVehicle = meas.sensor.sens_to_veh * zHomogeneous
+
+        # Assign the transormed positions to the state vector.
+        # Speed is initialized to zero as the lidar does not measure velocities
+        self.x = np.ones((params.dim_state, 1))
+        self.x[0:3] = xVehicle[0:3]
+
+        # We can use the measurement covariance R to initialize the error covariance P of x, y and z.
+        # However, we need to rotate R into the vehicle coordinates.
+        # That means we only use the first three columns and rows of sens_to_veh  for the rotation
+        rotMatrix = meas.sensor.sens_to_veh[0:3, 0:3]
+        posP = rotMatrix * meas.R * rotMatrix.transpose()
+
+        # Use high values for the intial error covariances of the speed.
+        # Use a standard deviation of 50 --> variance = standardDev**2 = 50**2
+        velP = np.matrix([[params.sigma_p44**2, 0,                   0],
+                          [0,                   params.sigma_p55**2, 0],
+                          [0,                   0,                   params.sigma_p66**2]])
+
+        self.P = np.matrix(np.zeros([params.dim_state, params.dim_state]))
+        self.P[0:3, 0:3] = posP
+        self.P[3:6, 3:6] = velP
+
+        self.state = 'initialized'
+        self.score = 1 / params.window
+
+        # Mask which describes if a measurement was assigned to the track over the cycles
+        # Bit0: Current cycle of execution
+        # Bit1 ... BitN: Past cycles
+        self.assignMask = np.uint8(0b00000001)
+
         ############
         # END student code
         ############ 
@@ -69,7 +92,7 @@ class Track:
         self.P = P  
         
     def set_t(self, t):
-        self.t = t  
+        self.t = t
         
     def update_attributes(self, meas):
         # use exponential sliding average to estimate dimensions and orientation

@@ -10,6 +10,9 @@
 # ----------------------------------------------------------------------
 #
 
+# imports
+import numpy as np
+
 # general parameters
 dim_state = 6 # process model dimension
 
@@ -21,6 +24,7 @@ q=3 # process noise variable for Kalman filter Q
 confirmed_threshold = 0.8 # track score threshold to switch from 'tentative' to 'confirmed'
 delete_threshold = 0.6 # track score threshold to delete confirmed tracks
 window = 6 # number of frames for track score calculation
+windowMask = np.uint8(1 << window) - 1 # window represented as 8-bit mask, 0b111111
 max_P = 3**2 # delete track if covariance of px or py bigger than this
 sigma_p44 = 50 # initial setting for estimation error covariance P entry for vx
 sigma_p55 = 50 # initial setting for estimation error covariance P entry for vy
