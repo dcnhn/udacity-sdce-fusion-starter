@@ -23,6 +23,8 @@ q=3 # process noise variable for Kalman filter Q
 # track management parameters (Step 2)
 confirmed_threshold = 0.8 # track score threshold to switch from 'tentative' to 'confirmed'
 delete_threshold = 0.6 # track score threshold to delete confirmed tracks
+deleteCount = 3 # delete track if no measurement was assigned for N consecutive cycles
+deleteMask = np.uint8(1 << deleteCount) - 1 # delete count represented as 8-bit mask, 0b111
 window = 6 # number of frames for track score calculation
 windowMask = np.uint8(1 << window) - 1 # window represented as 8-bit mask, 0b111111
 max_P = 3**2 # delete track if covariance of px or py bigger than this

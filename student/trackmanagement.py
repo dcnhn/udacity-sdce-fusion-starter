@@ -122,17 +122,41 @@ class Trackmanagement:
         # - delete tracks if the score is too low or P is too big (check params.py for parameters that might be helpful, but
         # feel free to define your own parameters)
         ############
+        if meas_list:
+            print("manage_tracks: processing ", meas_list[0].sensor.name, "sensor")
+        else:
+            print("manage_tracks: ", meas_list[0].sensor.name," has no measurements")
         
         # decrease score for unassigned tracks
         for i in unassigned_tracks:
             track = self.track_list[i]
-            # check visibility    
+            # check visibility
             if meas_list: # if not empty
                 if meas_list[0].sensor.in_fov(track.x):
-                    # your code goes here
-                    pass 
+                    print(meas_list[0].sensor.name)
+                    pass
 
-        # delete old tracks   
+            # Decrease score if no measurement is provided
+            print("Reducing track score of track no. ", track.id)
+            # Shift assignment mask to the left by 1. Bit 0 will be a zero because no measurement was assigned
+            # to the track
+            track.assignMask <<= 1
+
+            # Then apply the window mask to the assignment mask with the bitwise AND operation.
+            # That way it is ensured that only the window bits are considered
+            windowedAssignMask = track.assignMask & params.windowMask
+
+            # To get the new score count all set bits and divide by window
+            track.score = bin(windowedAssignMask).count("1") / params.window
+
+            deleteTrack = ((track.P[0, 0] >= params.max_P) or
+                            (track.P[1, 1] >= params.max_P) or
+                            ((track.score <= params.delete_threshold) and (track.state == "confirmed")) or
+                            (track.assignMask & params.deleteMask == 0))
+
+            # Check conditions to delete a track
+            if deleteTrack:
+                self.delete_track(track)
 
         ############
         # END student code
