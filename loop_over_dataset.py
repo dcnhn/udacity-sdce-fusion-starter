@@ -237,7 +237,7 @@ while True:
             for track in manager.track_list:
                 print('predict track', track.id)
                 KF.predict(track)
-                track.set_t((cnt_frame - 1)*0.1) # save next timestamp
+                track.set_t((cnt_frame - 1) * params.dt) # save next timestamp
                 
             # associate all lidar measurements to all tracks
             association.associate_and_update(manager, meas_list_lidar, KF)

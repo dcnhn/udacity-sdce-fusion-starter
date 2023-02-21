@@ -186,9 +186,28 @@ class Trackmanagement:
         # - increase track score
         # - set track state to 'tentative' or 'confirmed'
         ############
+        # A measurement was assigned to the track
+        # Therefore, update the assignMask
+        track.assignMask <<= 1
+        track.assignMask += 1
 
-        pass
-        
+        # To compute the new score, apply the window mask to the assignment mask
+        # with the bitwise AND operation. That way it is ensured that only the
+        # window bits are considered
+        windowedAssignMask = track.assignMask & params.windowMask
+
+        # To get the new score count all set bits and divide by window
+        track.score = bin(windowedAssignMask).count("1") / params.window
+
+        # Assigne confirmed if the score is above the threshold
+        track.state = "confirmed" if (track.score >= params.confirmed_threshold) else "tentative"
+
+        # In python, I don't know if it is a call by reference
+        # Therefore, loop over tracklist and update the track
+        for trackObj in self.track_list:
+            if (trackObj.id == track.id):
+                trackObj = track
+
         ############
         # END student code
         ############ 
