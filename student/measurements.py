@@ -47,8 +47,22 @@ class Sensor:
         # TODO Step 4: implement a function that returns True if x lies in the sensor's field of view, 
         # otherwise False.
         ############
+        # Transformation uses homogeneous coordinates.
+        # Therefore, describe position as a 4 x 1 vector where the last element is 1.
+        posVeh = np.ones((4, 1))
+        posVeh[0:3] = x[0:3]
 
-        return True
+        # Transform into sensor space
+        posSens = self.veh_to_sens * posVeh
+        
+        # Using arctan2 to compute the polar coordinates within (-pi, pi]
+        # Note that the first argument the y-coordinate is
+        angle = np.arctan2(posSens.item(1), posSens.item(0))
+
+        # Return variable
+        inFOV = self.fov[0] <= angle <= self.fov[1]
+
+        return inFOV
         
         ############
         # END student code
