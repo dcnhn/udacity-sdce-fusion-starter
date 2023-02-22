@@ -12,7 +12,7 @@ To succeed in the tracking, four tasks had to be solved:
 #### 1. Kalman Filter Implementation
 In this section, we had to implement both the prediction and update of the Kalman Filter algorithm.
 For the prediction, the methods to compute the system matrix __F__ and the error covariance matrix __Q__ had to be implemented.
-Both matrices have the dimension *6 x 6* as the state vector __x__ consisted of *6* states ($x$, $y$, $z$, $v_x$, $v_y$, $v_z$).
+Both matrices have the dimensions *6 x 6* as the state vector __x__ consisted of *6* states ($x$, $y$, $z$, $v_x$, $v_y$, $v_z$).
 
 The update required the implementation of the residual $\gamma$ and its covariance matrix __S__, respectively.
 Within the update method, the error covariance matrix __P__ and the state vector __x__ were updated using $\gamma$, __S__, the Kalman gain __K__ and the Jacobian __H__, respectively.
@@ -36,13 +36,13 @@ The velocity entries of __P__ will be initialized with hard-coded values of *par
 
 To reduce the track score *s* of unassigned tracks, the equation $s = {a \over w}$ was used.
 *w* is the window size to be monitored for the tracking. *a* is the number of assignments in the previous *w* cycles.
-It is important to note that the track score should only be reduced if the unassigned track is located within the field of view of the
+It is important to note that the track score should only be reduced if the unassigned track is located within the field of view (FOV) of the
 currently processed sensor.
 
 The deletion of a track was performed if at least one of the following conditions was met:
 1. The track score of a __confirmed__ track dropped below the deletion threshold
-2. The error covariance of the x-posiion was above the maximum allowed error covariance
-3. The error covariance of the y-posiion was above the maximum allowed error covariance
+2. The error covariance of the x-position was above the maximum allowed error covariance
+3. The error covariance of the y-position was above the maximum allowed error covariance
 4. No measurement was assigned to the track for M consecutive cycles
 
 In case a measurement was assigned to the track, the following steps were performed:
@@ -55,8 +55,8 @@ After the completion of the above-mentioned steps, the execution of *loop_over_d
 
 #### 3. Data Association
 The data association required us to implement the logic to map one measurement to one specific track.
-The association is represented by the association matrix __A__ of the dimension *t x m*.
-*t* is the number of tracks, whereas *m* the number of measurements describes.
+The association is represented by the association matrix __A__ of the dimensions *t x m*.
+*t* is the number of tracks, whereas *m* describes the number of measurements.
 The association matrix contains the *Mahalanobis* distance between each track and measurements.
 
 To complete this section, it was required to implement the following methods:
@@ -79,6 +79,30 @@ The reason is that the initial approach to remove entries led to issues with the
 After the completion of the above-mentioned steps, the execution of *loop_over_dataset.py* showed below RMSE plot:
 
 ![local image](doc/final03.png)
+
+#### 4. Camera Fusion
+In the last section of this project, we had to include the processing of the camera data by uncommenting a statement in *loop_over_dataset.py*.
+The constructor of the *Measurement* class had to be extended by the handling of the camera sensor.
+Here, it is important to point out that the camera measures the data in two dimensions resulting in a measurement covariance matrix __R__ with the
+dimensions *2 x 2*. The covariance entries were initialized using *params.py*.
+Another aspect to keep in mind is the different FOVs of each sensor which can lead to the incorrect computation of the tracking metrics
+if not taken into account. For example, a road user is only located inside the FOV of the lidar.
+The track score of the road user will increase over time as it is perfectly detected by the lidar.
+However, the track score is incorrectly decreased as soon as the camera sensor is processed even though the track is not within the camera's FOV.
+To avoid this issue, the method *in_fov* of the Sensor class had to be implemented. The method returns a flag stating if
+a track is inside the FOV. The position data is basically transformed to the sensor coordinates using the inverse of __T__.
+Then, the polar angle is computed and a range check is done.
+At last, we had to implement the nonlinear measurement function of the camera as the function is required to compute the residual $\gamma$ for the
+Extended Kalman Filter.
+
+After the completion of the above-mentioned steps, the execution of *loop_over_dataset.py* showed below RMSE plot:
+
+![local image](doc/final04.png)
+
+
+
+
+
 
 ### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)? 
 
