@@ -132,8 +132,11 @@ class Association:
         # Compute covariance of residual
         S = KF.S(track, meas, H)
 
+        # Compute MHD
+        mhd = (gamma.transpose() * np.linalg.inv(S) * gamma)
+
         # Return gamma^T * inv(S) * gamma
-        return gamma.transpose() * np.linalg.inv(S) * gamma
+        return mhd.item(0)
         
         ############
         # END student code
