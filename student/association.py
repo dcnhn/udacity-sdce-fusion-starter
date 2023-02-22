@@ -77,12 +77,13 @@ class Association:
         ############ 
         return update_track, update_meas     
 
-    def gating(self, MHD, sensor): 
+    def gating(self, MHD, sensor):
         ############
         # TODO Step 3: return True if measurement lies inside gate, otherwise False
         ############
-        
-        pass    
+        gateThreshold = chi2.ppf(params.gating_threshold, df=sensor.dim_meas)
+        insideGate = MHD < gateThreshold
+        return insideGate
         
         ############
         # END student code
@@ -92,8 +93,18 @@ class Association:
         ############
         # TODO Step 3: calculate and return Mahalanobis distance
         ############
-        
-        pass
+
+        # Compute residual
+        gamma = KF.gamma(track, meas)
+
+        # Get Jacobian H for a given state vector x
+        H = meas.sensor.get_H(track.x)
+
+        # Compute covariance of residual
+        S = KF.S(track, meas, H)
+
+        # Return gamma^T * inv(S) * gamma
+        return gamma.transpose() * np.linalg.inv(S) * gamma
         
         ############
         # END student code
