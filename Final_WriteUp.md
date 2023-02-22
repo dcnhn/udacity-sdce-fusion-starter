@@ -18,7 +18,7 @@ The update required the implementation of the residual $\gamma$, its covariance 
 
 After completion, the execution of *loop_over_dataset.py* showed below RMSE plot:
 
-![local image](doc/final.png)
+![local image](doc/final01.png)
 
 ### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)? 
 
