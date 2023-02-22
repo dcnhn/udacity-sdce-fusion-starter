@@ -30,13 +30,14 @@ For this section, it was required to solve the following:
 
 To initialize the track with the measurement data, it is important to point out that the measurement data is taken in the sensor domain.
 Therefore, it is required to transform the measurement into the vehicle coordinates.
-The sensor class already provides the transformation matrix T from sensor to vehicle space using homogeneous coordinates.
-The positional entries of the error covariance matrix __P__ can also be initialized using the same transformation matrix.
-The velocity entries of __P__ will be initialized with hard-coded values of *params.py* as none of the sensors measures the speed.
+The sensor class already provides the transformation matrix __T__ from sensor to vehicle space using homogeneous coordinates.
+The positional entries of the error covariance matrix __P__ can also be initialized using __T__.
+The velocity entries of __P__ will be initialized with hard-coded values of *params.py* as none of the sensors measure the speed.
 
-To reduce the track score of unassigned tracks, the following equation was used:
-$A \over W$
-*W* is the window size to be monitored for the tracking. *A* is the number of assignments in the previous *W* cycles.
+To reduce the track score *s* of unassigned tracks, the equation $s = a \over w$ was used.
+*w* is the window size to be monitored for the tracking. *a* is the number of assignments in the previous *w* cycles.
+It is important to note that the track score should only be reduced if the unassigned track is located within the field of view of the
+currently processed sensor.
 
 The deletion of a track was performed if at least one of the following conditions was met:
 1. The track score of a __confirmed__ track dropped below the deletion threshold
@@ -45,13 +46,39 @@ The deletion of a track was performed if at least one of the following condition
 4. No measurement was assigned to the track for M consecutive cycles
 
 In case a measurement was assigned to the track, the following steps were performed:
-1. Add $1 \over W$ to the track score
-2. Set the track state to *confirmed* if the track score is above the *confirmed* threshold
+1. Add $1 \over w$ to the track score *s*
+2. Set the track state to *confirmed* if *s* is above the *confirmed* threshold. Otherwise, assign *tentative*.
 
-After completion, the execution of *loop_over_dataset.py* showed below RMSE plot:
+After the completion of the above-mentioned steps, the execution of *loop_over_dataset.py* showed below RMSE plot:
 
 ![local image](doc/final02.png)
 
+#### 3. Data Association
+The data association required us to implement the logic to map one measurement to one specific track.
+The association is represented by the association matrix __A__ of the dimension *t x m*.
+*t* is the number of tracks, whereas *m* the number of measurements describes.
+The association matrix contains the *Mahalanobis* distance between each track and measurements.
+
+To complete this section, it was required to implement the following methods:
+1. The computation of the Mahalanobis distance
+2. The gating check for the computed Mahalanobis distance
+3. The logic to find a pair of measurement and track
+
+The gating and the mahalanobis distance were implemented according to the material from the lessons.
+
+To find a pair of measurement and track, the following logic was used:
+1. Find the element *a* with the __minimum__ Mahalanobis distance in __A__
+    a. The row of the element represents the track
+    b. The column of the element represents the corresponding measurement
+2. Remove both the row and column containing *a* from __A__.
+3. Repeat until no entries in __A__ are left. 
+
+Instead of literally removing the row and column from __A__ as described above, I set the corresponding entries to infinity.
+The reason is that the initial approach to remove entries led to issues with the data integrity.
+
+After the completion of the above-mentioned steps, the execution of *loop_over_dataset.py* showed below RMSE plot:
+
+![local image](doc/final03.png)
 
 ### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)? 
 
