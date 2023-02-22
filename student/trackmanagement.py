@@ -125,7 +125,7 @@ class Trackmanagement:
         if meas_list:
             print("manage_tracks: processing ", meas_list[0].sensor.name, "sensor")
         else:
-            print("manage_tracks: ", meas_list[0].sensor.name," has no measurements")
+            print("manage_tracks: no measurements available")
         
         # decrease score for unassigned tracks
         for i in unassigned_tracks:
