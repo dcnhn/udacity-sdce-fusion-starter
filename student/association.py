@@ -37,18 +37,18 @@ class Association:
         # - replace association_matrix with the actual association matrix based on Mahalanobis distance (see below) for all tracks and all measurements
         # - update list of unassigned measurements and unassigned tracks
         ############
-        
-        # the following only works for at most one track and one measurement
-        self.association_matrix = np.matrix([]) # reset matrix
-        self.unassigned_tracks = [] # reset lists
-        self.unassigned_meas = []
-        
-        if len(meas_list) > 0:
-            self.unassigned_meas = [0]
-        if len(track_list) > 0:
-            self.unassigned_tracks = [0]
-        if len(meas_list) > 0 and len(track_list) > 0: 
-            self.association_matrix = np.matrix([[0]])
+        nTracks = len(track_list)
+        nMeas = len(meas_list)
+        self.unassigned_tracks = list(range(nTracks))
+        self.unassigned_meas = list(range(nMeas))
+        self.association_matrix = np.matrix(np.zeros([nTracks, nMeas]))
+
+        # Iterate over the association matrix
+        for row in range(nTracks):
+            for col in range(nMeas):
+                # Compute MHD
+                mhd = self.MHD(track_list[row], meas_list[col], KF)
+                self.association_matrix[row, col] = mhd if self.gating(mhd, meas_list[col].sensor) else np.inf
         
         ############
         # END student code
