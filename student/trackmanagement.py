@@ -128,27 +128,27 @@ class Trackmanagement:
             print("manage_tracks: no measurements available")
         
         # decrease score for unassigned tracks
+        tracksToDelete = []
         for i in unassigned_tracks:
             track = self.track_list[i]
             # check visibility
             if meas_list: # if not empty
                 if meas_list[0].sensor.in_fov(track.x):
-                    print(meas_list[0].sensor.name)
-                    pass
 
-            # Decrease score if no measurement is provided
-            print("Reducing track score of track no. ", track.id)
-            # Shift assignment mask to the left by 1. Bit 0 will be a zero because no measurement was assigned
-            # to the track
-            track.assignMask <<= 1
+                    # Decrease score if no measurement is provided
+                    print("Reducing track score of track no. ", track.id)
+                    # Shift assignment mask to the left by 1. Bit 0 will be a zero because no measurement was assigned
+                    # to the track
+                    track.assignMask <<= 1
 
-            # Then apply the window mask to the assignment mask with the bitwise AND operation.
-            # That way it is ensured that only the window bits are considered
-            windowedAssignMask = track.assignMask & params.windowMask
+                    # Then apply the window mask to the assignment mask with the bitwise AND operation.
+                    # That way it is ensured that only the window bits are considered
+                    windowedAssignMask = track.assignMask & params.windowMask
 
-            # To get the new score count all set bits and divide by window
-            track.score = bin(windowedAssignMask).count("1") / params.window
+                    # To get the new score count all set bits and divide by window
+                    track.score = bin(windowedAssignMask).count("1") / params.window
 
+            # Check the delete conditions
             deleteTrack = ((track.P[0, 0] >= params.max_P) or
                             (track.P[1, 1] >= params.max_P) or
                             ((track.score <= params.delete_threshold) and (track.state == "confirmed")) or
@@ -156,7 +156,11 @@ class Trackmanagement:
 
             # Check conditions to delete a track
             if deleteTrack:
-                self.delete_track(track)
+                tracksToDelete.append(track)
+
+        # Iterate over delete list and remove each track
+        for track in tracksToDelete:
+            self.delete_track(track)
 
         ############
         # END student code
