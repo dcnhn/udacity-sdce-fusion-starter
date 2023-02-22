@@ -99,13 +99,11 @@ After the completion of the above-mentioned steps, the execution of *loop_over_d
 
 ![local image](doc/final04.png)
 
-
-
-
-
-
-### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)? 
-
+### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)?
+In my opinion, it is mandatory to have a camera-lidar fusion for tracking as this will introduce redundancies.
+The camera will also help to stabilize the tracking as seen in this project.
+Furthermore, the camera's strength is the object classification.
+This information can be used to have different kinematic models for the different road users (pedestrian, cars, cyclists etc.).
 
 ### 3. Which challenges will a sensor fusion system face in real-life scenarios? Did you see any of these challenges in the project?
 
