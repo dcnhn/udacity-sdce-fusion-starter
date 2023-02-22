@@ -92,8 +92,6 @@ class Filter:
         # Update the track object by calling its setters
         track.set_x(xPred)
         track.set_P(PPred)
-
-        pass
         
         ############
         # END student code
