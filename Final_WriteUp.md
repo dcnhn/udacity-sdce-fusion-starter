@@ -34,7 +34,7 @@ The sensor class already provides the transformation matrix __T__ from sensor to
 The positional entries of the error covariance matrix __P__ can also be initialized using __T__.
 The velocity entries of __P__ will be initialized with hard-coded values of *params.py* as none of the sensors measure the speed.
 
-To reduce the track score *s* of unassigned tracks, the equation $s = a \over w$ was used.
+To reduce the track score *s* of unassigned tracks, the equation $s = {a \over w}$ was used.
 *w* is the window size to be monitored for the tracking. *a* is the number of assignments in the previous *w* cycles.
 It is important to note that the track score should only be reduced if the unassigned track is located within the field of view of the
 currently processed sensor.
@@ -68,8 +68,8 @@ The gating and the mahalanobis distance were implemented according to the materi
 
 To find a pair of measurement and track, the following logic was used:
 1. Find the element *a* with the __minimum__ Mahalanobis distance in __A__
-    a. The row of the element represents the track
-    b. The column of the element represents the corresponding measurement
+    * The row of the element represents the track
+    * The column of the element represents the corresponding measurement
 2. Remove both the row and column containing *a* from __A__.
 3. Repeat until no entries in __A__ are left. 
 
