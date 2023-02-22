@@ -106,7 +106,15 @@ Furthermore, the camera's strength is the object classification.
 This information can be used to have different kinematic models for the different road users (pedestrian, cars, cyclists etc.).
 
 ### 3. Which challenges will a sensor fusion system face in real-life scenarios? Did you see any of these challenges in the project?
-
+* tuning the noise variables for the different systems (Automated Driving vs. Active Safety)
+* data association
+* scalability if only rule-based approaches are used
+* data synchronization
+* delays in the system
 
 ### 4. Can you think of ways to improve your tracking results in the future?
-
+* using a more complex model for the prediction, e.g. the bicycle model
+* parameter tuning for error and measurement covariance matrices
+* using the Unscented Kalman Filter
+* improving the object detection algorithms of both lidar and camera (training the models)
+* estimate other measures such as width height length
