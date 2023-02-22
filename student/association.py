@@ -63,19 +63,48 @@ class Association:
         # - return this track and measurement
         ############
 
-        # the following only works for at most one track and one measurement
-        update_track = 0
-        update_meas = 0
-        
-        # remove from list
-        self.unassigned_tracks.remove(update_track) 
-        self.unassigned_meas.remove(update_meas)
-        self.association_matrix = np.matrix([])
-            
+        # Return variable
+        update_track = np.nan
+        update_meas = np.nan
+
+        # Make local copy of the association matrix
+        A = self.association_matrix.copy()
+
+        # Check if minimum of A is less than infinity.
+        # This means the matrix still contains valid distance values.
+        # Also check if A has still elements
+        if (np.min(A) < np.inf):
+            # Get indices of the min element using np.where
+            # np.where will return a tuple of arrays even if there is only one occurence
+            minIndices = np.where(A == np.min(A))
+
+            # In case, we have multiple occurences of min take the first element
+            idxTrack = minIndices[0][0]
+            idxMeas = minIndices[1][0]
+
+            # Set whole row and col to inf to deactivate it for the association
+            # Removing did not work in my case as the data integrity was destroyed
+            A[idxTrack, :] = np.inf
+            A[:, idxMeas] = np.inf
+
+            # Remove the row of the track, the remove the column
+            # Note: Remove them from BOTH the association matrix and the unassigned lists!
+            # A = np.delete(A, idxTrack, axis=0)
+            # A = np.delete(A, idxMeas, axis=1)
+            self.unassigned_tracks.remove(idxTrack)
+            self.unassigned_meas.remove(idxMeas)
+
+            # Update the association matrix of self
+            self.association_matrix = A.copy()
+
+            # Assign found indices to return variable
+            update_track = idxTrack
+            update_meas = idxMeas
+
         ############
         # END student code
         ############ 
-        return update_track, update_meas     
+        return update_track, update_meas
 
     def gating(self, MHD, sensor):
         ############
