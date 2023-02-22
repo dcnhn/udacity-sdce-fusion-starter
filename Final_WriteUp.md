@@ -35,7 +35,8 @@ The positional entries of the error covariance matrix __P__ can also be initiali
 The velocity entries of __P__ will be initialized with hard-coded values of *params.py* as none of the sensors measures the speed.
 
 To reduce the track score of unassigned tracks, the following equation was used:
-$(Number of Assignments n in the previous N cycles) \over (Size of the window N)$
+$A \over W$
+*W* is the window size to be monitored for the tracking. *A* is the number of assignments in the previous *W* cycles.
 
 The deletion of a track was performed if at least one of the following conditions was met:
 1. The track score of a __confirmed__ track dropped below the deletion threshold
@@ -44,9 +45,8 @@ The deletion of a track was performed if at least one of the following condition
 4. No measurement was assigned to the track for M consecutive cycles
 
 In case a measurement was assigned to the track, the following steps were performed:
-1. Update score with:
-    * $Track Score += 1 \over (Size of the window N)$
-2. Set track state to *confirmed* if the track score is above the *confirmed* threshold
+1. Add $1 \over W$ to the track score
+2. Set the track state to *confirmed* if the track score is above the *confirmed* threshold
 
 After completion, the execution of *loop_over_dataset.py* showed below RMSE plot:
 
