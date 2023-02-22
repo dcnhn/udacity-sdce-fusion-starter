@@ -135,7 +135,7 @@ class Trackmanagement:
             if meas_list: # if not empty
                 if meas_list[0].sensor.in_fov(track.x):
 
-                    # Decrease score if no measurement is provided
+                    # Decrease score if no measurement is provided and if the track is located inside the sensor's FOV
                     print("Reducing track score of track no. ", track.id)
                     # Shift assignment mask to the left by 1. Bit 0 will be a zero because no measurement was assigned
                     # to the track
@@ -191,7 +191,9 @@ class Trackmanagement:
         # - set track state to 'tentative' or 'confirmed'
         ############
         # A measurement was assigned to the track
-        # Therefore, update the assignMask
+        # Therefore, update the assignMask:
+        # Shift left by 1
+        # Add 1 to set bit at position zero
         track.assignMask <<= 1
         track.assignMask += 1
 
