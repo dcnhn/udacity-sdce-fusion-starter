@@ -1,5 +1,7 @@
 __pycache__/
 dataset/*
 results/*
+!results/*.png
+!results/*mp4
 pretrained/
 **.zip

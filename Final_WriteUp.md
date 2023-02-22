@@ -99,6 +99,10 @@ After the completion of the above-mentioned steps, the execution of *loop_over_d
 
 ![local image](doc/final04.png)
 
+This is the resulting video of the tracking project:
+
+![](results/my_tracking_results.mp4)
+
 ### 2. Do you see any benefits in camera-lidar fusion compared to lidar-only tracking (in theory and in your concrete results)?
 In my opinion, it is mandatory to have a camera-lidar fusion for tracking as this will introduce redundancies.
 The camera will also help to stabilize the tracking as seen in this project.
