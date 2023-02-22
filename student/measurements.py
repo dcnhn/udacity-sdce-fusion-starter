@@ -68,7 +68,7 @@ class Sensor:
         # END student code
         ############ 
              
-    def get_hx(self, x):    
+    def get_hx(self, x):
         # calculate nonlinear measurement expectation value h(x)   
         if self.name == 'lidar':
             pos_veh = np.ones((4, 1)) # homogeneous coordinates
@@ -85,8 +85,27 @@ class Sensor:
             # - return h(x)
             ############
 
-            pass
-        
+            # Transformation uses homogeneous coordinates.
+            # Therefore, describe position as a 4 x 1 vector where the last element is 1.
+            posVeh = np.ones((4, 1))
+            posVeh[0:3] = x[0:3]
+
+            # Transform into camera sensor coordinate system
+            posSens = self.veh_to_sens * posVeh
+
+            # Return variable
+            hAtX = np.ones((self.dim_meas, 1))
+
+            # Handle division by zero
+            if np.isclose(posSens[0], 0.0):
+                raise ZeroDivisionError('Divsion by zero in get_hx()!')
+
+            else:
+                hAtX[0] = self.c_i - (self.f_i * posSens[1]) / posSens[0]
+                hAtX[1] = self.c_j - (self.f_j * posSens[2]) / posSens[0]
+
+            return hAtX
+
             ############
             # END student code
             ############ 
